@@ -1,0 +1,40 @@
+name: Class 3 CI and artifact delivery
+
+on:
+  push:
+    branches: [ci-demo]
+  pull_request:
+    branches: [main, ci-demo]
+
+permissions:
+  contents: read
+
+jobs:
+  validate-and-package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out the triggering commit
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.13'
+      - name: Test validation behavior
+        run: python -m unittest discover -s tests -v
+      - name: Validate the actual site
+        run: python tools/check_site.py src
+      - name: Build the deliverable
+        run: python tools/build.py
+      - name: Save the deliverable on ci-demo pushes
+        if: github.event_name == 'push' && github.ref == 'refs/heads/ci-demo'
+        uses: actions/upload-artifact@v7
+        with:
+          name: website-${{ github.sha }}
+          path: |
+            dist/site.zip
+            dist/build-info.json
+          if-no-files-found: error
+          retention-days: 7
