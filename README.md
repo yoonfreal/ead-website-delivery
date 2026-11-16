@@ -26,3 +26,5 @@ The local preview is not a production service.
 - This is CI plus artifact delivery, not a deployed running application.
 
 This repository delivers a small static website through a GitHub Actions workflow.
+
+The workflow tests the code, validates the real site, builds it, and uploads the result as an artifact.
